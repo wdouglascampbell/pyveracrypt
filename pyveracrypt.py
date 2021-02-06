@@ -1,19 +1,20 @@
-# Truecrypt parsing library for Python by Gareth Owen
+# Veracrypt parsing library for Python
+# based on pytruecrypt project by Gareth Owen
 # https://github.com/drgowen/pytruecrypt/
 # See LICENCE for licence details
 
-# PyTruecrypt is free software: you can redistribute it and/or modify
+# PyVeracrypt is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 
-# PyTruecrypt is distributed in the hope that it will be useful,
+# PyVeracrypt is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with PyTruecrypt.  If not, see <http://www.gnu.org/licenses/>.
+# along with PyVeracrypt.  If not, see <http://www.gnu.org/licenses/>.
 
 from collections import namedtuple
 import sys
@@ -29,7 +30,7 @@ import os
 from util import *
 
 class encObject:
-	"""pycrypto objects used by PyTruecrypt"""
+	"""pycrypto objects used by PyVeracrypt"""
 	def __init__(self, type):
 		self.keys = None
 		self.enc = None
@@ -37,7 +38,6 @@ class encObject:
 		self.type = type
 
 	def set_keys(self, key):
-		#keys = {'key' : binascii.unhexlify(key[:64]),'xtskey' : binascii.unhexlify(key[64:])}
 		keys = {'key' : key[:32],'xtskey' : key[32:]}
 		self.keys = keys
 		self.enc = self._get_encryption_object(self.keys['key'])
@@ -53,13 +53,20 @@ class encObject:
 		else:
 			return False
 
-class PyTruecrypt:
-	def __init__(self, filename="", veracrypt=False, encryption=["aes"], hash_func="default", fd=None):
+class PyVeracrypt:
+	def __init__(self, filename="", pim=0, encryption=["aes"], hash_func="default", fd=None, veracrypt=True, container=False):
 		self.fn = filename
-		self.veracrypt = veracrypt
+		self.pim = pim
 		self.valid = False
 		self.encryption_mode = encryption
 		self.fd = fd
+		self.veracrypt = veracrypt
+		self.container = container
+		if self.pim == 0:
+			if hash_func == "ripemd" and not container:
+				self.pim = 98
+			else :
+				self.pim = 485
 
 		#check viable encryption_mode chosen
 		if self.encryption_mode not in [["aes"],["aes","twofish"],["aes","twofish","serpent"],["serpent"],["serpent","aes"],["serpent","twofish","aes"],["twofish"],["twofish","serpent"]]:
@@ -75,21 +82,24 @@ class PyTruecrypt:
 				self.dataenc[mode] = encObject(mode)
 
 		#set defaults
-		if hash_func == "default" and not veracrypt:
-			hash_func = 'ripemd'
-		elif hash_func == "default" and veracrypt:
+		if hash_func == "default" and self.veracrypt:
 			hash_func = 'sha512'
+		elif hash_func == "default" and not self.veracrypt:
+			hash_func = 'ripemd'
 
 		#create pycrypto hash object
 		if hash_func == 'sha512':
 			self.hash_func = SHA512
-			self.hash_func_rounds = (1000 if not self.veracrypt else 500000)
-		elif hash_func == 'ripemd':
-			self.hash_func = RIPEMD
-			self.hash_func_rounds = (2000 if not self.veracrypt else 500000)
+			self.hash_func_rounds = (1000 if not self.veracrypt else (15000 + (self.pim * 1000)))
 		elif hash_func == 'whirlpool':
 			self.hash_func = WHIRLPOOL
-			self.hash_func_rounds = (1000 if not self.veracrypt else 500000)
+			self.hash_func_rounds = (1000 if not self.veracrypt else (15000 + (self.pim * 1000)))
+		elif hash_func == 'ripemd':
+			self.hash_func = RIPEMD
+			if self.container:
+				self.hash_func_rounds = (2000 if not self.veracrypt else (15000 + (self.pim * 1000)))
+			else :
+				self.hash_func_rounds = (2000 if not self.veracrypt else (self.pim * 2048))
 
 	def open_with_key(self, aes_key=None, twofish_key=None, serpent_key=None):
 		if not self.fd:	self.fd = open(self.fn, "r+b")

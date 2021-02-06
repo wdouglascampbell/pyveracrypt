@@ -1,14 +1,15 @@
-pytruecrypt
+pyveracrypt
 ===========
-  
-Truecrypt volume parsing library by originally created by [Gareth Owen](https://github.com/drgowen/), University of Portsmouth, with additional features added by [Adam Swann](https://github.com/4144414d/).
+
+Veracrypt volume parsing library based on pytruecrypt originally created by [Gareth Owen](https://github.com/drgowen/), University of Portsmouth, with additional features added by [Adam Swann](https://github.com/4144414d/).
   
 Library status:
 - Decrypts header (can dump raw decrypted header)
 - Decodes header fields
 - Can dump any decrypted sector
 - Hidden volume support
-- Veracrypt support
+- Veracrypt support (including use of PIM)
+- Truecrypt compatibility
 - Can decrypt using only recovered keys (no password required)
 - Supports all encryption modes and hash functions offered by Truecrypt
 - Can decrypt damaged containers if salt and header keys are recoverable 
@@ -180,10 +181,36 @@ memory.
 
 
 ###pw-check.py
-pw-check.py is used to check that a small list of passwords work against a container. It checks all options available in Truecrypt and allows you to confirm that normal and backup headers match. The -d option will print the decoded header to screen if successful, the -v option will also read Veracrypt files.  
+pw-check.py is used to verify if the given password, encryption mode, hash algorithm, PIM combination is valid for the given container or header file.
 
-    > pw-check <container> <password>
-    > pw-check example.tc password
+    > pw-check <container|volume header> [-pim <pim>] [-mode <encryption mode>] [-hash <hash algorithm>] <password>
+	> pw-check driver.hdr -pim 1 -mode aes -hash sha512 areallygoodpassword
+	correct
+
+
+PIM default: 485
+
+Encryption modes:
+ * aes (default)
+ * serpent
+ * twofish
+ * aes-twofish
+ * aes-twofish-serpent
+ * serpent-aes
+ * serpent-twofish-aes
+ * twofish-serpent
+
+Hashing algorithms:
+ * ripemd
+ * sha512 (default)
+ * whirlpool
+
+
+###pw-checker.py
+pw-checker.py is used to check that a small list of passwords work against a container. It checks all options available in Truecrypt and allows you to confirm that normal and backup headers match. The -d option will print the decoded header to screen if successful, the -v option will also read Veracrypt files.  
+
+    > pw-checker <container> <password>
+    > pw-checker example.tc password
 	password appears to be valid for a Truecrypt standard volume using the normal header using aes and ripemd
 	password appears to be valid for a Truecrypt standard volume using the backup header using aes and ripemd
 

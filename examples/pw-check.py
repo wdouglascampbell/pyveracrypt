@@ -1,51 +1,69 @@
 """
-pw-check will test all passwords given against a file to determine if it would
+pw-check will test the given password on the VeraCrypt container or header
+either using the values given for PIM, encryption mode, and hashing algorithm
+or their defaults if not specified.
+s given against a file to determine if it would
 successfully decode a TrueCrypt/VeraCrypt volume. This also allows you to 
 see if the standard and backup headers match. 
 
-GitHub: https://github.com/4144414D/pytruecrypt
+GitHub: https://github.com/wdouglascampbell/pyveracrypt
 
 Usage:
-  pw-check <file> <passwords>... [-dv]
+  pw-check <file> [--pim PIM] [--crypto CRYPTO] [--algo ALGO] <password>
  
 Options:
-  -h, --help              Show this screen.
-  -d, --decode            Decode header if successful.
-  -v, --veracrypt         Also check for VeraCrypt.
+  -h, --help                     Show this screen.
+  -a ALGO, --algo ALGO           Hashing algorithm
+  -c CRYPTO, --crypto CRYPTO     Encryption mode
+  -p PIM, --pim PIM              Personal Iterations Multiplier (PIM) value
+
+PIM default value is 458
+
+Hashing algorithms (algo)
+ + ripemd
+ + sha256
+ + whirlpool
+ 
+Encryption modes (crypto)
+ + aes (default)
+ + serpent
+ + twofish
+ + aes-twofish
+ + aes-twofish-serpent
+ + serpent-aes
+ + serpent-twofish-aes
+ + twofish-serpent
 """
 
-from pytruecrypt import *
+from pyveracrypt import *
 from docopt import docopt
 import binascii
+import six
+import appdirs
+import packaging
+import packaging.version
+import packaging.requirements
+import packaging.specifiers
 
 if __name__ == '__main__':
-	arguments = docopt(__doc__)
-	for password in arguments['<passwords>']:
-		veraoptions = ([False] if not arguments['--veracrypt'] else [False,True])
-		for vera in veraoptions:
-			for hidden in [False,True]:
-				for backup in [False,True]:
-					for hash in ['ripemd','sha512','whirlpool']:
-						for crypto in [["aes"],["aes","twofish"],["aes","twofish","serpent"],["serpent"],["serpent","aes"],["serpent","twofish","aes"],["twofish"],["twofish","serpent"]]:
-							tc = PyTruecrypt(arguments['<file>'], vera, encryption=crypto,hash_func=hash)
-							if tc.open(password,hidden=hidden,backup=backup):
-								print password,
-								print 'appears to be valid for a',
-								print ('TrueCrypt' if not vera else 'VeraCrypt'),
-								print ('standard' if not hidden else 'hidden'),
-								print 'volume using the',
-								print ('normal' if not backup else 'backup'),
-								print 'header',
-								print 'using',
-								print crypto,
-								print 'and',
-								print hash
-								if arguments['--decode']:
-									header = tc.getHeader()
-									for k in header:
-										print k, ":", 
-										if k=="Keys":
-											print binascii.hexlify(header[k])	
-										else:	
-											print header[k]
-									print
+    arguments = docopt(__doc__)
+    file = arguments['<file>']
+    if arguments['--pim']:
+        pim = int(arguments['--pim'])
+    else :
+        pim = 485
+    if arguments['--crypto']:
+        crypto = arguments['--crypto'].split('-')
+    else:
+        crypto = ["aes"]
+    if arguments['--algo']:
+        algo = arguments['--algo']
+    else:
+        algo = 'sha512'
+    password = arguments['<password>']
+    
+    tc = PyVeracrypt(file, pim, crypto, algo)
+    if tc.open(password, False, False):
+        print 'correct'
+    else :
+        print 'incorrect'
