@@ -1,15 +1,13 @@
 """
-pw-check will test the given password on the VeraCrypt container or header
-either using the values given for PIM, encryption mode, and hashing algorithm
-or their defaults if not specified.
-s given against a file to determine if it would
-successfully decode a TrueCrypt/VeraCrypt volume. This also allows you to 
-see if the standard and backup headers match. 
+pw-check will test the given password on the VeraCrypt encrypted container or
+device or on the system either using the values given for PIM, encryption mode, and hashing algorithm
+or their defaults, if not specified.
 
 GitHub: https://github.com/wdouglascampbell/pyveracrypt
 
 Usage:
-  pw-check <file> [--pim PIM] [--crypto CRYPTO] [--algo ALGO] <password>
+  pw-check file <file> [--pim PIM] [--crypto CRYPTO] [--algo ALGO] <password>
+  pw-check system [--pim PIM] [--crypto CRYPTO] [--algo ALGO] <password>
  
 Options:
   -h, --help                     Show this screen.
@@ -38,6 +36,7 @@ Encryption modes (crypto)
 from pyveracrypt import *
 from docopt import docopt
 import binascii
+import wmi
 import six
 import appdirs
 import packaging
@@ -62,7 +61,25 @@ if __name__ == '__main__':
         algo = 'sha512'
     password = arguments['<password>']
     
-    tc = PyVeracrypt(file, pim, crypto, algo)
+    if arguments['file']:
+        tc = PyVeracrypt(file, pim, crypto, algo)
+    if arguments['system']:
+        c = wmi.WMI()
+
+        # get system partition drive letter
+        wql = "SELECT SystemDrive FROM Win32_OperatingSystem"
+        drive_letter = c.query(wql)[0].SystemDrive
+        
+        # iterate over physical disks, their partitions and those partitions logical drives to find the physical disk that holds the system partition
+        for physical_disk in c.Win32_DiskDrive ():
+          for partition in physical_disk.associators ("Win32_DiskDriveToDiskPartition"):
+            for logical_disk in partition.associators ("Win32_LogicalDiskToPartition"):
+              if logical_disk.DeviceID == drive_letter:
+                disk=physical_disk.DeviceID
+                break
+        
+        tc = PyVeracrypt(disk, pim, crypto, algo, None, True, True)
+        
     if tc.open(password, False, False):
         print 'correct'
     else :
