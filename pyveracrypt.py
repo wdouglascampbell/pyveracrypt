@@ -54,7 +54,7 @@ class encObject:
             return False
 
 class PyVeracrypt:
-    def __init__(self, filename="", pim=0, encryption=["aes"], hash_func="default", fd=None, veracrypt=True, system_partition=False):
+    def __init__(self, filename="", pim=0, encryption=["aes"], hash_func="default", fd=None, veracrypt=True, system_partition=False, size=0, offset=0):
         self.fn = filename
         self.pim = pim
         self.valid = False
@@ -67,6 +67,8 @@ class PyVeracrypt:
                 self.pim = 98
             else :
                 self.pim = 485
+        self.size = size
+        self.offset = offset
 
         #check viable encryption_mode chosen
         if self.encryption_mode not in [["aes"],["aes","twofish"],["aes","twofish","serpent"],["serpent"],["serpent","aes"],["serpent","twofish","aes"],["twofish"],["twofish","serpent"]]:
@@ -118,18 +120,21 @@ class PyVeracrypt:
 
         #open file/device as file object
         if not self.fd: self.fd = open(self.fn, "r+b")
+        if self.offset: self.fd.seek(self.offset)
         if self.system_partition:
             self.fd.seek(62 * 512)
         else:
             #get total size of container
-            self.fd.seek(0, os.SEEK_END)
-            self.size = self.fd.tell()
+			# note: this only works for file-based containers
+            if not self.size:
+                self.fd.seek(0, os.SEEK_END)
+                self.size = self.fd.tell()
 
             #seek to the correct location in the container to read the header
             if backup:
-                self.fd.seek((self.fd.size - 131072) if not hidden else (self.fd.size - 65536))
+                self.fd.seek((self.size + self.offset - 131072) if not hidden else (self.size + self.offset - 65536))
             else:
-                self.fd.seek(0 if not hidden else 65536)
+                self.fd.seek(self.offset if not hidden else (self.offset+65536))
 
         #read the encrypted header
         self.tchdr_ciphered = self.fd.read(512)
