@@ -146,33 +146,33 @@ Similarly hash functions can be assigned long or short hand where:
     sha-512   = s
     whirlpool = w
 
-####Example usage:
+#### Example usage:
 
     > image pwd <tc> <image> <mode> <password> [<hash>] [-vbh] [(-f -oBYTES -dBYTES)]
     > image key <tc> <image> <mode> [-aKEY -tKEY -sKEY] [(-oBYTES -dBYTES)]
 
-#####Scenario 1:
+##### Scenario 1:
 You wish to image a Truecrypt file "input1.tc" to an image named "output1.dd", 
 it uses aes and ripemd. The password is "Scenario1". As ripemd is the default
 for Truecrypt it does not need to be specified.
 
     > image pwd input1.tc output1.dd aes Scenario1 
 
-#####Scenario 2:
+##### Scenario 2:
 You wish to image a Truecrypt file "input2.tc" to an image named "output2.dd",
 it uses aes-serpent and sha512. The password is "Scenario2". You wish to save 
 time and use the short hand commands.
 
     > image pwd input2.tc output2.dd as Scenario2 s
 
-#####Scenario 3:
+##### Scenario 3:
 You wish to image a Truecrypt file "input3.tc" to an image named "output3.dd",
 it uses aes-serpent. You know it contains a hidden volume and the password is 
 "Scenario3".
 
     > image pwd input3.tc output3.dd aes-serpent Scenario3 --hidden
 
-#####Scenario 4:
+##### Scenario 4:
 You wish to image a Truecrypt file "input4.tc" to an image named "output4.dd",
 it uses aes. You do not know the password but have extracted AES keys from 
 memory. 
@@ -182,33 +182,18 @@ memory.
     feeb4791a0befa4
 
 
-###pw-check.py
-pw-check.py is used to verify if the given password, encryption mode, hash algorithm, PIM combination is valid for the given container or header file.
+### pw-check.py
+pw-check.py is used to check an encryption password.  It works with file-based containers and partitions (both system and mounted non-system partitions).
 
-    > pw-check <container|volume header> [-pim <pim>] [-mode <encryption mode>] [-hash <hash algorithm>] <password>
-	> pw-check driver.hdr -pim 1 -mode aes -hash sha512 areallygoodpassword
-	correct
+Note:  In order to work with partitions pw-check.py must be run with elevated privileges.
 
+    pw-check file <file> [--pim PIM] [--crypto CRYPTO] [--algo ALGO] <password>
+    pw-check drive <drive> [--pim PIM] [--crypto CRYPTO] [--algo ALGO] <password>
+    pw-check system [--pim PIM] [--crypto CRYPTO] [--algo ALGO] <password>
 
-PIM default: 485
+See pw-check --help for additional information.
 
-Encryption modes:
- * aes (default)
- * serpent
- * twofish
- * aes-twofish
- * aes-twofish-serpent
- * serpent-aes
- * serpent-twofish-aes
- * twofish-serpent
-
-Hashing algorithms:
- * ripemd
- * sha512 (default)
- * whirlpool
-
-
-###pw-checker.py
+### pw-checker.py
 pw-checker.py is used to check that a small list of passwords work against a container. It checks all options available in Truecrypt and allows you to confirm that normal and backup headers match. The -d option will print the decoded header to screen if successful, the -v option will also read Veracrypt files.  
 
     > pw-checker <container> <password>
@@ -216,14 +201,14 @@ pw-checker.py is used to check that a small list of passwords work against a con
 	password appears to be valid for a Truecrypt standard volume using the normal header using aes and ripemd
 	password appears to be valid for a Truecrypt standard volume using the backup header using aes and ripemd
 
-###pwcracker.py
+### pwcracker.py
 pwcracker.py is an example password cracker for Truecrypt. Simply provide a word list and it will attempt to crack the container.
 
     > pwcracker <container> <wordlist>
     > pwcracker example.tc wordlist.txt
     > PW Found: password
 
-###quick-container.py
+### quick-container.py
 quick-container.py produces a Truecrypt container quickly by skipping the first stage encryption setting. This is therefore similar to 'quick format' full disk encryption whereby the free space is not first encrypted. This means a hidden volume is very obvious and it's possible to track the ammount of encrypted data stored within a container. 
 
 The containers are not formatted and once mounted will require a file system to be created. Containers are always created using AES and ripemd. 
@@ -231,7 +216,7 @@ The containers are not formatted and once mounted will require a file system to 
     > quick-container <container> <password> <mb-size>
     > quick-container example password 1024
 	
-###reserved.py
+### reserved.py
 reserved.py uses the free space in the Truecrypt header to hide additional data. This data is encrypted with the same password as the container itself. 
 
 To hide a file:
@@ -256,14 +241,14 @@ Truecrypt Documentation:
 
 Very little as the code is generally compact. See the examples, and pyTruecrypt.py - the comments show how to use it. I am slowly expanding this section. 
 
-###Truecrypt Basics
+### Truecrypt Basics
 Truecrypt works in two main ways either as full disk encryption or using
 encrypted containers on Windows, Linux, or OSX. On windows it is also
 possible to encrypt the operating system with Truecrypt and boot into
 windows. This is not possible on Linux or OSX but it can still use full
 disk encryption on non OS disks.
 
-###Algorithms
+### Algorithms
 Truecrypt allows the following encryption schemes all working in XTS
 mode. Where more than one encryption algorithm is used the data is
 encrypted with each algorithm using different master keys.
@@ -283,7 +268,7 @@ Three hash algorithms are available, these are:
 - WHIRLPOOL
 
 
-###Encryption in Truecrypt
+### Encryption in Truecrypt
 
 Truecrypt uses each of the different encryption algorithms in XTS mode.
 In short this means that same plain text data encrypted with the same
@@ -314,7 +299,7 @@ to the container in an effort to increase security, however the attacker
 already has the master keys and as such can decrypt the container. 
 
 
-###Volumes
+### Volumes
 
 TrueCrypt allows the user to have a normal volume and a hidden volume.
 The normal volume is designed to be well encrypted but if the TrueCrypt
@@ -345,13 +330,13 @@ this sector will seemingly contain random data.
 
 ![Truecrypt Layout](https://raw.githubusercontent.com/4144414D/pytruecrypt/gh-pages/images/container-layout.png)
 
-###Truecrypt Header v5
+### Truecrypt Header v5
 
 Truecrypt 7.1a uses the header version 5. This header is the same for
 normal and hidden volumes and system encryption, the difference is
 simply their location and flag bits.
 
-####Header Elements
+#### Header Elements
 
 **1)  Salt - 64 Bytes**
 
