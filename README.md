@@ -1,11 +1,11 @@
 pyveracrypt
 ===========
 
-Veracrypt volume parsing library based on pytruecrypt originally created by [Gareth Owen](https://github.com/drgowen/), University of Portsmouth, with additional features added by [Adam Swann](https://github.com/4144414d/).  I, [Doug Campbell](https://github.com/wdouglascampbell), am forking this because I needed it to work with VeraCrypt and I needed it to work with mounted partition volumes.
+Veracrypt volume parsing library based on pytruecrypt originally created by [Gareth Owen](https://github.com/drgowen/), University of Portsmouth, with additional features added by [Adam Swann](https://github.com/4144414d/).
 
-I have mostly focused on changes in the main pyveracrypt.py file and in changes to pw-check.py in the examples folder so that it does more what I want to do.  Perhaps I will eventually work on some of these other examples and make sure they are updated but for now that is not the plan.  All this to say that you will need to likely update those examples yourself if you need to use them.
+I, [Doug Campbell](https://github.com/wdouglascampbell), am forking this because I needed it to work with VeraCrypt and I needed it to work with mounted partition volumes.  I have mostly focused on changes in the main pyveracrypt.py file and in changes to pw-check.py in the examples folder so that it does more what I want to do.  Perhaps I will eventually work on some of these other examples and make sure they are updated but for now that is not the plan.  All this to say that you will need to likely update those examples yourself if you need to use them.
 
-   -- Doug Campbell Feb 10, 2021
+                    -- Doug Campbell    Feb 10, 2021
   
 Library status:
 - Decrypts header (can dump raw decrypted header)
@@ -44,7 +44,8 @@ Other Tools
 Example Usage
 -------------
 Below are examples on how to use the example scripts.
-####dump.py
+
+#### dump.py
 dump.py will perform a hex dump of the decrypted header and first sector of a container. It also works with hidden volumes if given the -h option. 
 
     > dump <container>
@@ -131,7 +132,7 @@ dump.py will perform a hex dump of the decrypted header and first sector of a co
     01e0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
     01f0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 aa   ..............U.
 
-###image.py
+### image.py
 image is used to image a Truecrypt container for further analysis. The container can be open with a password or with keys extracted from memory.
 
 Encryption modes can be assigned long or short hand where:
