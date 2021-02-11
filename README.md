@@ -22,7 +22,8 @@ Library status:
 Examples:
 - dump.py: Header and first sector decrypted hex dump
 - image.py: Create decrypted dd image of container
-- pw-check.py: Checks password against all available Truecrypt options
+- pw-check.py: Checks if VeraCrypt password is correct
+- pw-checker.py: Checks password against all available Truecrypt options
 - pwcracker.py: Password cracker
 - quick-container.py: Produces a working Truecrypt container in seconds
 - reserved.py: Hides data within the reserved space of a container
