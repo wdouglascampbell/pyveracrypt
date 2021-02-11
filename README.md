@@ -1,7 +1,9 @@
 pyveracrypt
 ===========
 
-Veracrypt volume parsing library based on pytruecrypt originally created by [Gareth Owen](https://github.com/drgowen/), University of Portsmouth, with additional features added by [Adam Swann](https://github.com/4144414d/).
+Veracrypt volume parsing library based on pytruecrypt originally created by [Gareth Owen](https://github.com/drgowen/), University of Portsmouth, with additional features added by [Adam Swann](https://github.com/4144414d/).  I, [Doug Campbell](https://github.com/wdouglascampbell), am forking this because I needed it to work with VeraCrypt and I needed it to work with mounted partition volumes.
+
+I have mostly focused on changes in the main pyveracrypt.py file and in changes to pw-check.py in the examples folder so that it does more what I want to do.  Perhaps I will eventually work on some of these other examples and make sure they are updated but for now that is not the plan.  All this to say that you will need to likely update those examples yourself if you need to use them. -- Doug Campbell Feb 10, 2021
   
 Library status:
 - Decrypts header (can dump raw decrypted header)
