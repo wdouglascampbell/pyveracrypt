@@ -39,6 +39,7 @@ Encryption modes (crypto)
 """
 
 from pyveracrypt import *
+from sys import exit
 from docopt import docopt
 import binascii
 import wmi
