@@ -19,7 +19,7 @@
 from collections import namedtuple
 import sys
 from Crypto.Protocol.KDF import *
-from Crypto.Hash import RIPEMD, SHA512
+from Crypto.Hash import RIPEMD, SHA512, SHA256
 from CryptoPlus.Hash import python_whirlpool as WHIRLPOOL
 from Crypto.Cipher import AES
 from CryptoPlus.Cipher import python_Twofish as TwoFish
@@ -102,6 +102,9 @@ class PyVeracrypt:
                 self.hash_func_rounds = (2000 if not self.veracrypt else (self.pim * 2048))
             else :
                 self.hash_func_rounds = (2000 if not self.veracrypt else (15000 + (self.pim * 1000)))
+        elif hash_func == 'sha256':
+            self.hash_func = SHA256
+            self.hash_func_rounds = (1000 if not self.veracrypt else (self.pim * 2048))
 
     def open_with_key(self, aes_key=None, twofish_key=None, serpent_key=None):
         if not self.fd: self.fd = open(self.fn, "r+b")

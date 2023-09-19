@@ -68,7 +68,12 @@ if __name__ == '__main__':
     if arguments['--algo']:
         algo = arguments['--algo']
     else:
-        algo = 'sha512'
+        ws = wmi.WMI(namespace='root/Microsoft/Windows/Storage')
+        is_mbr_partition_style = ws.query("SELECT PartitionStyle FROM MSFT_Disk")[0].PartitionStyle == 1
+        if is_mbr_partition_style:
+          algo = 'sha256'
+        else:
+          algo = 'sha512'
     password = arguments['<password>']
     
     if arguments['file']:
