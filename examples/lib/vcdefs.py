@@ -1,4 +1,5 @@
 import ctypes
+import pywintypes
 import win32file
 import winioctlcon
 
