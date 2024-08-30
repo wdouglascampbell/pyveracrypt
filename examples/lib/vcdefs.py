@@ -50,7 +50,8 @@ class BootEncryptionStatus(ctypes.Structure):
         ('HibernationPreventionCount', ctypes.c_uint),
         ('HiddenSystem', ctypes.c_int),
         ('HiddenSystemPartitionStart', ctypes.c_int64),
-        ('HiddenSysLeakProtectionCount', ctypes.c_uint))
+        ('HiddenSysLeakProtectionCount', ctypes.c_uint),
+        ('MasterKeyVulnerable', ctypes.c_int))
 
 class MOUNT_LIST_STRUCT(ctypes.Structure):
     _pack_ = 1
